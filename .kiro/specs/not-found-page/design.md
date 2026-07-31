@@ -130,7 +130,7 @@ src/app/
 - Next.js の `not-found.tsx` 規約に従い、存在しないURLへのアクセス時、および配下のいずれかのページで `notFound()` が呼ばれた際に描画される（Requirement 1.1, 1.2）。Next.js の規約により自動的に HTTP 404 を返す（Requirement 1.4）。
 - `metadata` export でページタイトルを設定する（例: `ページが見つかりません | よっとこ！新庄村`、`terms/page.tsx` 等の既存パターンに準拠）。
 - ヘッダーは `<AppHeader />` をデフォルト props（`homeHref="/"`）でそのまま呼び出す（Requirement 2.1）。
-- イラストは `<CharacterContainer leftSrc="/assets/character/siro-ojigi.png" rightSrc="/assets/character/kuro-ojigi.png" />` を呼び出す。alt文言は `CharacterContainer` 側で自動生成される既存ロジックをそのまま利用する（Requirement 2.3, 2.4）。
+- イラストは `<CharacterContainer leftSrc="/assets/character/siro-ojigi.png" rightSrc="/assets/character/kuro-ojigi.png" gapClassName="gap-8" />` を呼び出す。`gapClassName` を明示しないと `CharacterContainer` の既定値 `gap-20` になり、モックアップより猫同士の間隔が広くなりすぎるため、`cancel/complete/page.tsx` と同じ `gap-8` を指定する。alt文言は `CharacterContainer` 側で自動生成される既存ロジックをそのまま利用する（Requirement 2.3, 2.4）。
 - 見出し・説明文は次のサイズ・色で構成する（Requirement 1.3, 4.1, 4.2, 4.3, 4.4）:
   - `<h1>`: `404` — `text-4xl font-bold leading-[1.5] text-arcana-primary-green`（36px、太字、行間1.5。Tailwindの`text-4xl`既定行間（約1.11）はRequirement 4.2の1.5未満基準を満たさないため明示指定する）
   - 説明文: `お探しのページは見つかりませんでした` — `text-2xl font-bold leading-[1.5] text-arcana-primary-green`（24px、太字）

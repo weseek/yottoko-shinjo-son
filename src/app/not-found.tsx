@@ -20,11 +20,14 @@ export default function NotFound() {
           <CharacterContainer
             leftSrc="/assets/character/siro-ojigi.png"
             rightSrc="/assets/character/kuro-ojigi.png"
+            gapClassName="gap-8"
           />
         </div>
 
         {/* 404見出し・説明文 */}
-        <h1 className="text-4xl font-bold leading-[1.5] text-arcana-primary-green">404</h1>
+        <h1 className="text-4xl font-bold leading-[1.5] text-arcana-primary-green">
+          404
+        </h1>
         <p className="mt-4 text-2xl font-bold leading-[1.5] text-arcana-primary-green">
           お探しのページは見つかりませんでした
         </p>
