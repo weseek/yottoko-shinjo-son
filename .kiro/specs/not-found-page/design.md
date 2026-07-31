@@ -132,8 +132,9 @@ src/app/
 - ヘッダーは `<AppHeader />` をデフォルト props（`homeHref="/"`）でそのまま呼び出す（Requirement 2.1）。
 - イラストは `<CharacterContainer leftSrc="/assets/character/siro-ojigi.png" rightSrc="/assets/character/kuro-ojigi.png" gapClassName="gap-8" />` を呼び出す。`gapClassName` を明示しないと `CharacterContainer` の既定値 `gap-20` になり、モックアップより猫同士の間隔が広くなりすぎるため、`cancel/complete/page.tsx` と同じ `gap-8` を指定する。alt文言は `CharacterContainer` 側で自動生成される既存ロジックをそのまま利用する（Requirement 2.3, 2.4）。
 - 見出し・説明文は次のサイズ・色で構成する（Requirement 1.3, 4.1, 4.2, 4.3, 4.4）:
-  - `<h1>`: `404` — `text-4xl font-bold leading-[1.5] text-arcana-primary-green`（36px、太字、行間1.5。Tailwindの`text-4xl`既定行間（約1.11）はRequirement 4.2の1.5未満基準を満たさないため明示指定する）
-  - 説明文: `お探しのページは見つかりませんでした` — `text-2xl font-bold leading-[1.5] text-arcana-primary-green`（24px、太字）
+  - `<h1>`: `404` — `text-4xl font-bold leading-[1.5] text-arcana-green`（36px、太字、行間1.5。Tailwindの`text-4xl`既定行間（約1.11）はRequirement 4.2の1.5未満基準を満たさないため明示指定する）
+  - 説明文: `お探しのページは見つかりませんでした` — `text-base font-bold leading-[1.5] text-arcana-green`（16px、太字）
+  - 色は `text-arcana-green`（`#397754`）を使用する。白／`neutral-50`背景でのコントラスト比は約5.0〜5.3:1であり、文字サイズ・太さによらず通常文字の4.5:1基準を単独で満たす（`arcana-primary-green`（約4.0:1）と異なり「大きな文字」の3:1基準に頼る必要がない）。
 - 戻り先リンクは `<NotFoundBackLink />` を配置するのみで、パス判定ロジックは持たない（Requirement 3.1〜3.6、詳細は下記コンポーネント参照）。
 - フッターは本ページ専用の簡略マークアップとして直接記述する（`AppFooter` は流用しない）:
   - 「お問い合わせ」mailto リンク: `text-sm text-arcana-orange-secondary underline` ＋ `focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arcana-orange-secondary`（既存 `AppFooter` と同一クラス構成、Requirement 2.2）
@@ -164,8 +165,8 @@ src/app/
 
 **Responsibilities & Constraints**
 - `"use client"` コンポーネントとして `next/navigation` の `usePathname()` を呼び出し、現在のパスを取得する。
-- パスが `/activities` から始まる場合 → `href="/activities"`, ラベル「交流コンテンツ一覧に戻る」（Requirement 3.2）
-- パスが `/spots` から始まる場合 → `href="/spots"`, ラベル「スポット一覧に戻る」（Requirement 3.3）
+- パスが `/activities` から始まる場合 → `href="/activities"`, ラベル「一覧に戻る」（Requirement 3.2）
+- パスが `/spots` から始まる場合 → `href="/spots"`, ラベル「一覧に戻る」（Requirement 3.3。ラベル文言は`/activities`と共通の汎用表記とし、遷移先（href）のみで内容を区別する。ユーザー確認済みの意図的な決定）
 - 上記いずれにも一致しない場合 → `href="/"`, ラベル「トップページに戻る」（Requirement 3.4）
 - リンクは `next/link` の `Link` で描画し、`‹ ` プレフィックス＋ラベルを表示する（Requirement 3.1, 3.5）。
 - スタイルは `text-lg font-bold text-arcana-primary-green`（18px・太字）とし、`focus-visible:outline` 系クラスでキーボード操作時のフォーカスを可視化する（Requirement 3.6, 4.3, 4.4 — 18px+太字により「大きな文字」の3:1基準を満たす。design-system.md のボタンラベルと同じ運用根拠）。
@@ -190,8 +191,8 @@ interface BackLinkRule {
 }
 
 const BACK_LINK_RULES: readonly BackLinkRule[] = [
-  { prefix: "/activities", href: "/activities", label: "交流コンテンツ一覧に戻る" },
-  { prefix: "/spots", href: "/spots", label: "スポット一覧に戻る" },
+  { prefix: "/activities", href: "/activities", label: "一覧に戻る" },
+  { prefix: "/spots", href: "/spots", label: "一覧に戻る" },
 ];
 
 const DEFAULT_BACK_LINK: Omit<BackLinkRule, "prefix"> = {
