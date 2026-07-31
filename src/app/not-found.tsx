@@ -25,10 +25,10 @@ export default function NotFound() {
         </div>
 
         {/* 404見出し・説明文 */}
-        <h1 className="text-4xl font-bold leading-[1.5] text-arcana-primary-green">
+        <h1 className="text-4xl font-bold leading-[1.5] text-arcana-green">
           404
         </h1>
-        <p className="mt-4 text-2xl font-bold leading-[1.5] text-arcana-primary-green">
+        <p className="mt-4 text-2l font-bold leading-[1.5] text-arcana-green">
           お探しのページは見つかりませんでした
         </p>
 

@@ -13,9 +13,9 @@ const BACK_LINK_RULES: readonly BackLinkRule[] = [
   {
     prefix: "/activities",
     href: "/activities",
-    label: "交流コンテンツ一覧に戻る",
+    label: "一覧に戻る",
   },
-  { prefix: "/spots", href: "/spots", label: "スポット一覧に戻る" },
+  { prefix: "/spots", href: "/spots", label: "一覧に戻る" },
 ];
 
 const DEFAULT_BACK_LINK: Omit<BackLinkRule, "prefix"> = {
