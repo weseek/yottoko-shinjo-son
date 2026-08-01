@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.git/
+.gitignore
+.devcontainer/
+.kiro/
+.env
+.env.local
+.env.*.local
+*.md
+.DS_Store
+.pnpm-store/
+src/generated/prisma/

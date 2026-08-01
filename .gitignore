@@ -1,0 +1,54 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+build/
+
+# production
+dist/
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# vercel
+.vercel
+
+# open-next
+.open-next/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# prisma
+src/generated/prisma
+
+# pnpm
+.pnpm-store/
+
+# dev email storage (letter_opener)
+tmp/emails/
+
+# 3D assets
+*.glb
+*.gltf
+
+# uploads (local storage)
+public/uploads/
+
+# cc-sdd backup
+.cc-sdd.backup/
+
+# misc
+.DS_Store
+*.pem

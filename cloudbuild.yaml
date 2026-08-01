@@ -1,0 +1,143 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build"
+    env:
+      - "DOCKER_BUILDKIT=1"
+    args:
+      - "build"
+      - "-t"
+      - "${_AR_REGISTRY}:$COMMIT_SHA"
+      - "-t"
+      - "${_AR_REGISTRY}:latest"
+      # next.config.ts の images.remotePatterns が build 時に確定するため、
+      # バケット名だけは build 引数としても渡す（runtime env とは別経路）。
+      - "--build-arg=GCS_BUCKET=${_GCS_BUCKET}"
+      - "."
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "push"
+    args:
+      - "push"
+      - "--all-tags"
+      - "${_AR_REGISTRY}"
+
+  # migrate / seed が共有する依存を /workspace/node_modules に一度だけ install する。
+  # - Dockerfile と同じ pnpm install --frozen-lockfile を使うので CI と本番イメージで
+  #   依存解決方式が一貫する
+  # - Cloud Build は /workspace を全ステップ間で共有するため、後続の migrate / seed は
+  #   この node_modules をそのまま使える
+  # - canvas は pnpm.neverBuiltDependencies で native build がスキップされるので、
+  #   隔離 install しなくても問題にならない
+  - name: "node:24-slim"
+    id: "deps"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        set -e
+        corepack enable
+        cd /workspace
+        pnpm install --frozen-lockfile
+
+  # DB migration を Cloud Run コンテナ起動時ではなく Cloud Build パイプライン内で実行する。
+  # - Cloud Run の runtime image を CLI tool (prisma) で汚さなくて済む
+  # - 失敗したら deploy ステップに進まないので、新コードと古いスキーマの組合せが prod に出ない
+  - name: "node:24-slim"
+    id: "migrate"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        set -e
+        cd /workspace
+        node_modules/.bin/prisma migrate deploy
+    secretEnv: ["DATABASE_URL"]
+
+  # 初期管理者アカウントを作成する seed を実行する。
+  # - migrate 後・deploy 前に実行し、prod に「管理者ゼロでログイン不能」な状態を作らない
+  #   (disableSignUp + createUser が管理者セッション必須のため、最初の1人は seed でしか作れない)
+  # - schema には next-admin generator も定義されているので `--generator client` で
+  #   Prisma client だけを生成する (next-admin generator の依存を持ち込まない)
+  # - seed は email upsert + 既存ならパスワード非更新で冪等。毎デプロイ走っても、
+  #   管理者が後から /admin で変更したパスワードを上書きで戻すことはない
+  - name: "node:24-slim"
+    id: "seed"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        set -e
+        cd /workspace
+        node_modules/.bin/prisma generate --generator client
+        node_modules/.bin/tsx prisma/seed.ts
+    secretEnv: ["DATABASE_URL", "INITIAL_ADMIN_PASSWORD"]
+    env:
+      - "INITIAL_ADMIN_EMAIL=${_INITIAL_ADMIN_EMAIL}"
+      - "INITIAL_ADMIN_NAME=${_INITIAL_ADMIN_NAME}"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "${_SERVICE_NAME}"
+      - "--image=${_AR_REGISTRY}:$COMMIT_SHA"
+      - "--region=${_REGION}"
+      - "--platform=managed"
+      - "--allow-unauthenticated"
+      - "--port=3000"
+      - "--memory=1Gi"
+      - "--cpu=1"
+      - "--min-instances=0"
+      - "--max-instances=3"
+      - "--concurrency=80"
+      - "--set-env-vars=APP_ENV=production,NEXT_PUBLIC_APP_ENV=production,EMAIL_FROM=${_EMAIL_FROM},GCS_BUCKET=${_GCS_BUCKET},BETTER_AUTH_URL=${_BETTER_AUTH_URL},UMAMI_SCRIPT_URL=${_UMAMI_SCRIPT_URL},UMAMI_WEBSITE_ID=${_UMAMI_WEBSITE_ID},CONTACT_EMAIL=${_CONTACT_EMAIL},AR_MODEL_URL=${_AR_MODEL_URL}"
+      - "--set-secrets=DATABASE_URL=DATABASE_URL:latest,RESEND_API_KEY=RESEND_API_KEY:latest,BETTER_AUTH_SECRET=BETTER_AUTH_SECRET:latest,GOOGLE_GEOCODING_API_KEY=GOOGLE_GEOCODING_API_KEY:latest,GOOGLE_MAPS_BROWSER_KEY=GOOGLE_MAPS_BROWSER_KEY:latest,NOTIFICATION_RECIPIENTS=NOTIFICATION_RECIPIENTS:latest"
+
+images:
+  - "${_AR_REGISTRY}:$COMMIT_SHA"
+  - "${_AR_REGISTRY}:latest"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# -----------------------------------------------------------------------
+# substitutions: 環境固有の値には既定値を置かない。
+#
+# それらしい既定値（contact@example.com 等）を置くと、トリガー側の設定を
+# 忘れてもビルドが通り、プレースホルダーのまま本番に出てしまう。既定値が無い
+# 代入変数は Cloud Build が「値が渡されていない」としてビルドを失敗させるので、
+# 設定漏れが本番へ届く前に止まる。
+#
+# 実際の値は Cloud Build トリガーの「代入変数」欄で設定する。
+# 一覧と設定例は README.md の「デプロイ設定」を参照。
+#
+# 既定値を持つのは次の 2 種類だけ:
+#   - 環境に依存しない実際の既定値 (_REGION, _INITIAL_ADMIN_NAME)
+#   - 空文字が「その機能を使わない」を意味する任意設定 (_UMAMI_*, _AR_MODEL_URL)
+# -----------------------------------------------------------------------
+# 次の 7 つはここに書かない（キーを書くと null 値で「定義済み」になり
+# ビルドが通ってしまう）。トリガー側で必ず設定すること:
+#   _SERVICE_NAME     既存 Cloud Run サービス名。違う名前だと別サービスが新規作成される
+#   _AR_REGISTRY      例: asia-northeast1-docker.pkg.dev/$PROJECT_ID/<repo>/app
+#   _EMAIL_FROM       送信元メールアドレス (Resend)
+#   _GCS_BUCKET       画像アップロード用 GCS バケット名
+#   _BETTER_AUTH_URL  本番アプリの URL。誤ると管理画面にログインできない
+#   _CONTACT_EMAIL    お問い合わせ窓口。誤るとプライバシーポリシー・利用規約に誤記載が出る
+#   _INITIAL_ADMIN_EMAIL  既存の管理者と違う値にすると管理者が二重に作られる
+substitutions:
+  # 環境に依存しない実際の既定値
+  _REGION: asia-northeast1
+  _INITIAL_ADMIN_NAME: 管理者
+  # 任意設定。空なら該当機能を無効にしたまま動く
+  _UMAMI_SCRIPT_URL: "" # 空ならアクセス解析タグを出力しない
+  _UMAMI_WEBSITE_ID: "" # 空ならアクセス解析タグを出力しない
+  _AR_MODEL_URL: "" # 空なら AR 撮影を案内表示にする（README「AR モデルの配置」参照）
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/DATABASE_URL/versions/latest
+      env: "DATABASE_URL"
+    - versionName: projects/$PROJECT_ID/secrets/INITIAL_ADMIN_PASSWORD/versions/latest
+      env: "INITIAL_ADMIN_PASSWORD"

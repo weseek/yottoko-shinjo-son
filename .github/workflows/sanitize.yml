@@ -1,0 +1,29 @@
+name: Sanitize
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# 同一ブランチで新しい push があれば古い実行をキャンセル
+concurrency:
+  group: sanitize-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-public-release:
+    name: Public-release sanitization
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Dockerfile の node:24-slim と揃える
+          node-version: 24
+
+      # スクリプトは Node の組み込みモジュールのみを使うため、依存のインストールは不要。
+      # 社内ドメイン・社内メールアドレス・GCP プロジェクト ID・本番バケット名などが
+      # 混入したら失敗する。一度無害化した箇所が後の変更で戻るのを防ぐのが目的。
+      - name: Run sanitization check
+        run: node scripts/check-public-release.mjs --fix-hints

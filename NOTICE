@@ -1,0 +1,36 @@
+Arcana (よっとこ！新庄村)
+Copyright 2026 WESEEK, Inc.
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+================================================================================
+Bundled third-party development tooling
+================================================================================
+
+The following directories contain AI-agent tooling that was brought into this
+repository from outside. They are development-time aids and are not part of the
+deployed application.
+
+--------------------------------------------------------------------------------
+.claude/skills/kiro-*/ and .kiro/settings/
+--------------------------------------------------------------------------------
+
+A Kiro-style Spec-Driven Development skill set introduced via the cc-sdd
+toolkit. The upstream license text and copyright holder are not recorded in
+this repository.
+
+================================================================================
+Assets not covered by the Apache License, Version 2.0
+================================================================================
+
+Character designs, character artwork, photographs of the village and of people
+under public/assets/ are owned by third parties (see the "ライセンス" section of
+README.md). They are included only as part of this application's presentation
+and are not licensed for reuse under the Apache License, Version 2.0.
+
+The character "Himekko" is (c) Shinjo Village. Its 3D model (.glb) is a
+derivative work of that character; the modelling itself is published under
+CC BY 4.0 (see the /credits page of the application). Because distributing the
+model from a public repository needs the rights holder's confirmation, the model
+is not included here and is supplied at deploy time instead (see "AR モデルの配置"
+in README.md).

@@ -1,0 +1,22 @@
+{
+  "feature_name": "unify-button-style",
+  "created_at": "2026-07-24T04:36:48Z",
+  "updated_at": "2026-07-27T02:29:37Z",
+  "language": "ja",
+  "phase": "tasks-generated",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    },
+    "tasks": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "ready_for_implementation": true
+}

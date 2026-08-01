@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* === Primary: 桜 (Sakura Pink) === */
+  --color-primary-50: #fef2f4;
+  --color-primary-100: #fce7eb;
+  --color-primary-200: #f9c2cc;
+  --color-primary-300: #f4899e;
+  --color-primary-400: #e95d7a;
+  --color-primary-500: #d63d5e;
+  --color-primary-600: #b42a4a;
+  --color-primary-700: #8c1f39;
+
+  /* === Secondary: 若葉 (Fresh Green) === */
+  --color-secondary-50: #f0f9f1;
+  --color-secondary-100: #d5f0d8;
+  --color-secondary-200: #a8deb0;
+  --color-secondary-300: #6bc278;
+  --color-secondary-400: #4aa85a;
+  --color-secondary-500: #357a40;
+  --color-secondary-600: #2a6332;
+
+  /* === Neutral: 墨 (Sumi Ink) === */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f8f7f6;
+  --color-neutral-100: #f0eeec;
+  --color-neutral-200: #e2dfdb;
+  --color-neutral-300: #c5c0b9;
+  --color-neutral-400: #9a9489;
+  --color-neutral-500: #706a60;
+  --color-neutral-600: #4d4840;
+  --color-neutral-700: #33302b;
+  --color-neutral-800: #1e1c19;
+
+  /* === Semantic === */
+  --color-error: #c53030;
+  --color-error-bg: #fff5f5;
+  --color-warning: #8c5a14;
+  --color-warning-bg: #fffff0;
+  --color-success: #357a40;
+  --color-success-bg: #f0f9f1;
+  --color-info: #2b6cb0;
+  --color-info-bg: #ebf8ff;
+
+  /* === Spot === */
+  --color-spot: #65da48;
+  --color-spot-action: #089400;
+
+  /* === Camera === */
+  --color-camera-bg: #f5edd6;
+  --color-arcana-bg: #faf8f4; /* arcana/bg */
+
+  /* === Arcana === */
+  --color-body-blue: #385767;
+  --color-arcana-primary-green: #089400; /* arcana/primary-green */
+  --color-arcana-orange-secondary: #f0863e; /* arcana/orange-secondary */
+  --color-arcana-limegreen: #65da48; /* arcana/limegreen */
+  --color-arcana-green: #397754; /* arcana/green */
+
+  /* === Decorative === */
+  --color-accent-wisteria: #8b7ec8;
+  --color-accent-sky: #6ba3d6;
+  --color-accent-peach: #fff3ec;
+
+  /* === Arcana Brand (LP専用) === */
+  --color-arcana-green-dark: #067300;
+  --color-arcana-green-light: #e8efe5;
+  --color-arcana-orange: #f0863e;
+  --color-arcana-pale-orange: #fff3e3;
+  --color-arcana-body-blue: #385767;
+  --color-arcana-forest: #397754;
+  --color-arcana-mute: #74918e;
+  --color-arcana-cream: #faf8f4;
+
+  /* === Shadows === */
+  --shadow-sm: 0 1px 2px rgba(30, 28, 25, 0.06);
+  --shadow-md: 0 2px 8px rgba(30, 28, 25, 0.08);
+  --shadow-lg: 0 4px 16px rgba(30, 28, 25, 0.1);
+  --shadow-xl: 0 8px 32px rgba(30, 28, 25, 0.12);
+  --shadow-yellow: 2px 3px 0 rgba(255, 218, 72, 0.5);
+
+  /* === Transitions === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms ease;
+}
+
+@theme inline {
+  --color-primary-50: var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+
+  --color-secondary-50: var(--color-secondary-50);
+  --color-secondary-100: var(--color-secondary-100);
+  --color-secondary-200: var(--color-secondary-200);
+  --color-secondary-300: var(--color-secondary-300);
+  --color-secondary-400: var(--color-secondary-400);
+  --color-secondary-500: var(--color-secondary-500);
+  --color-secondary-600: var(--color-secondary-600);
+
+  --color-neutral-0: var(--color-neutral-0);
+  --color-neutral-50: var(--color-neutral-50);
+  --color-neutral-100: var(--color-neutral-100);
+  --color-neutral-200: var(--color-neutral-200);
+  --color-neutral-300: var(--color-neutral-300);
+  --color-neutral-400: var(--color-neutral-400);
+  --color-neutral-500: var(--color-neutral-500);
+  --color-neutral-600: var(--color-neutral-600);
+  --color-neutral-700: var(--color-neutral-700);
+  --color-neutral-800: var(--color-neutral-800);
+
+  --color-error: var(--color-error);
+  --color-error-bg: var(--color-error-bg);
+  --color-warning: var(--color-warning);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-info: var(--color-info);
+  --color-info-bg: var(--color-info-bg);
+
+  --color-accent-wisteria: var(--color-accent-wisteria);
+  --color-accent-sky: var(--color-accent-sky);
+  --color-accent-peach: var(--color-accent-peach);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  font-family: var(--font-zen-maru-gothic), "BIZ UDPGothic", "Noto Sans JP",
+    system-ui, sans-serif;
+  font-feature-settings: "palt";
+  font-weight: 500;
+  color: var(--color-neutral-600);
+  background-color: var(--color-neutral-50);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

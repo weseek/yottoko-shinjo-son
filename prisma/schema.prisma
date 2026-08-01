@@ -1,0 +1,167 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+generator nextAdmin {
+  provider = "next-admin-generator-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ActivityStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum EntryStatus {
+  NEW
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+model Activity {
+  id          Int             @id @default(autoincrement())
+  title       String
+  description String
+  detail      String?
+  status      ActivityStatus  @default(DRAFT)
+  startDate   DateTime
+  endDate     DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  images      ActivityImage[]
+  entries     Entry[]
+
+  @@index([deletedAt])
+  @@map("activities")
+}
+
+model Entry {
+  id          Int         @id @default(autoincrement())
+  cancelToken String      @unique @default(uuid())
+  name        String
+  message     String?
+  status      EntryStatus @default(NEW)
+  activityId  Int
+  activity   Activity    @relation(fields: [activityId], references: [id])
+  deletedAt  DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([deletedAt])
+  @@index([activityId])
+  @@map("entries")
+}
+
+model ActivityImage {
+  id         Int      @id @default(autoincrement())
+  url        String
+  order      Int      @default(0)
+  activityId Int
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@map("activity_images")
+}
+
+enum SpotStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+model Spot {
+  id             Int        @id @default(autoincrement())
+  slug           String     @unique
+  name           String
+  description    String
+  address        String
+  latitude       Float?
+  longitude      Float?
+  qrCodeLocation String
+  status         SpotStatus @default(DRAFT)
+  imageUrl       String?
+  arAssetUrl          String?
+  himekkoDescription  String?
+  createdAt           DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@map("spots")
+}
+
+model HomeCameraConfig {
+  id         Int      @id @default(autoincrement())
+  label      String?
+  scale      Float?
+  arAssetUrl String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("home_camera_configs")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          String?
+  banned        Boolean?
+  banReason     String?
+  banExpires    DateTime?
+  sessions      Session[]
+  accounts      Account[]
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  impersonatedBy String?
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}

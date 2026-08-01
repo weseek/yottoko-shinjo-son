@@ -1,0 +1,14 @@
+{
+  "features": {
+    "ghcr.io/devcontainers-extra/features/cloudflared:1": {
+      "version": "1.0.8",
+      "resolved": "ghcr.io/devcontainers-extra/features/cloudflared@sha256:18b7db2cd2e84ce93716c465bebc4b5944b8309bdfe6fbf8c49b9129f3cc8253",
+      "integrity": "sha256:18b7db2cd2e84ce93716c465bebc4b5944b8309bdfe6fbf8c49b9129f3cc8253"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "1.1.0",
+      "resolved": "ghcr.io/devcontainers/features/github-cli@sha256:d22f50b70ed75339b4eed1ba9ecde3a1791f90e88d37936517e3bace0bbad671",
+      "integrity": "sha256:d22f50b70ed75339b4eed1ba9ecde3a1791f90e88d37936517e3bace0bbad671"
+    }
+  }
+}

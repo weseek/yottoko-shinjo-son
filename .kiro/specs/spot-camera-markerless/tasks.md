@@ -1,0 +1,96 @@
+# Implementation Plan
+
+- [x] 1. Spot撮影をマーカーレス（床検知）方式へ差し替え
+- [x] 1.1 SpotArExperience をネイティブAR起動方式に書き換え
+  - `landing|ar|preview` の状態機械と自作キャプチャ／`lib/ar/state` 依存を撤去する
+  - `@/app/camera/_components` の `HiddenArViewer`・`ArModal` を再利用し、AR起動ボタン押下で `canActivateAR` を判定して真なら `activateAR()`、偽なら `ArModal` を表示する（`HomeArExperience` 同型）
+  - 完了状態: スポット撮影ページで「AR で撮影する」を押すと、対応端末で OS標準ARビューアが起動し、非対応端末では3Dビューア（`ArModal`）が開く
+  - _Requirements: 1.1, 1.2, 1.3, 3.1, 3.2, 3.3, 4.1, 4.2_
+  - _Boundary: SpotArExperience_
+- [x] 1.2 ArLanding の互換ゲートを撤去しAR起動へ接続
+  - `compatError` によるボタン無効化ロジックを削除し、`onStart` を常時活性なAR起動ボタンに接続する（互換判定は model-viewer の `canActivateAR` に委譲）
+  - スポット名・3Dモデルプレビュー・`himekkoDescription`・戻る導線・マーカー非表示を維持する
+  - 完了状態: ランディングにスポット名／モデルプレビュー／（設定時）説明文が表示され、マーカー画像は一切表示されない
+  - _Requirements: 2.1, 2.2, 2.3, 2.4_
+  - _Boundary: ArLanding_
+- [x] 1.3 camera page のマーカー参照を撤去
+  - `TargetConfig`・`DEFAULT_TARGET`・`spot.mindFileUrl` 参照を削除し、`SpotArExperience` へは `spot` と `model`（`ModelConfig`）のみ渡す
+  - `arAssetUrl` 未登録時の既定モデル（`FALLBACK_MODEL`）フォールバックを維持する
+  - 完了状態: `arAssetUrl` 未設定スポットでも既定ひめっこモデルで AR 起動でき、`.mind` 参照がコードから消える
+  - _Requirements: 1.4_
+  - _Boundary: spots slug camera page_
+
+- [x] 2. マーカー専用コード・型・依存の撤去
+- [x] 2.1 マーカー／自作キャプチャ専用ファイルを削除
+  - `ArScene.tsx`・`PhotoPreview.tsx`・`lib/ar/state.ts`・`lib/ar/three-shim.ts`・`src/types/mind-ar.d.ts` を削除する
+  - 完了状態: 上記ファイルが存在せず、Spot撮影から MindAR・three・canvas合成・自作プレビューが消える
+  - _Requirements: 4.1, 4.2, 5.1, 5.2, 5.3_
+  - _Depends: 1.1, 1.3_
+  - _Boundary: spot camera components, lib ar_
+- [x] 2.2 (P) 共有型から未使用型を削除
+  - `lib/ar/types.ts` から `TargetConfig`・`CaptureResult`・`ArSceneState`・`PageView` を削除し、`ModelConfig` のみ残す
+  - 完了状態: `ModelConfig` を用いる自宅撮影・Spot撮影が型エラーなくビルドできる
+  - _Requirements: 5.3_
+  - _Depends: 2.1_
+  - _Boundary: lib ar types_
+- [x] 2.3 (P) 開発用プレビューの PhotoPreview 参照を除去
+  - `dev/preview` の `DevPreviewClient` から `PhotoPreview` の import と使用箇所を除去する
+  - 完了状態: `dev/preview` が `PhotoPreview` を参照せずビルドできる
+  - _Requirements: 5.3_
+  - _Depends: 2.1_
+  - _Boundary: dev preview_
+- [x] 2.4 (P) MindAR用スタイルとマーカーアセットを撤去
+  - `globals.css` の MindAR 用 video/canvas 左寄せ補正CSSを削除し、参照ゼロになったマーカーアセット（`public/assets/targets/demo.mind` 等）を撤去する
+  - 完了状態: MindAR関連のCSS・アセットが残らない
+  - _Requirements: 5.2, 5.3_
+  - _Boundary: globals css, public assets_
+- [x] 2.5 マーカー関連 npm 依存を削除
+  - `package.json` から `mind-ar`・`three`・`@types/three` を削除し、ロックファイルを更新する
+  - 完了状態: これらの依存がインストールされず、型チェック・ビルドが通る
+  - _Requirements: 5.1_
+  - _Depends: 2.1, 2.2_
+  - _Boundary: package manifest_
+
+- [x] 3. 管理画面・アップロードAPIの撤去
+- [x] 3.1 (P) .mind アップロードAPIとUIを削除
+  - `/api/admin/upload-mind` ルートと `mind-file-upload-input` コンポーネントを削除する
+  - 完了状態: `/api/admin/upload-mind` が 404 になり、`.mind` アップロードUIコンポーネントが存在しない
+  - _Requirements: 7.2_
+  - _Boundary: admin upload-mind route, admin components_
+- [x] 3.2 (P) storage の .mind 処理を削除
+  - `lib/storage.ts` から `validateMindFile`・`uploadMind`・`MIND_MAX_SIZE` を削除する（画像/GLB処理は維持）
+  - 完了状態: `.mind` 検証・アップロード関数が存在せず、画像アップロード機能は不変で動作する
+  - _Requirements: 7.2_
+  - _Depends: 3.1_
+  - _Boundary: lib storage_
+- [x] 3.3 スポット管理フォームからマーカー関連項目を撤去
+  - `admin/options.tsx` の Spot 定義から `mindFileUrl`・`markerImageUrl` の aliases・edit.display セクション・fields・関連 import（`MindFileUploadInput`）を削除する
+  - `arAssetUrl`（GLB）・`himekkoDescription` の設定は維持する
+  - 完了状態: スポット編集フォームに `.mind`／マーカー画像入力が表示されず、3Dモデル・説明文の入力は残る
+  - _Requirements: 7.1, 7.3_
+  - _Depends: 3.1_
+  - _Boundary: admin options_
+
+- [x] 4. DBスキーマ削除とマイグレーション
+- [x] 4.1 Spot からマーカーフィールドを削除しマイグレーションを追加
+  - `schema.prisma` の `Spot` から `mindFileUrl`・`markerImageUrl` を削除する
+  - `ALTER TABLE "spots" DROP COLUMN ...` の新規マイグレーションを追加し（先例 `drop_home_camera_marker_fields` に倣う）、`prisma generate` で `src/generated/prisma` を再生成する
+  - 完了状態: Prisma Client 型に両フィールドが存在せず、マイグレーション適用で `spots` テーブルから両カラムが消える
+  - _Requirements: 6.1, 6.2, 6.3_
+  - _Depends: 1.3, 3.3_
+  - _Boundary: prisma schema, migrations, generated client_
+
+- [x] 5. 検証（統合・回帰・アクセシビリティ）
+- [x] 5.1 型チェック・lint・ビルドで参照ゼロと自宅撮影回帰を確認
+  - `tsc`・lint・build を実行し、`mindFileUrl`／`markerImageUrl`／`mind-ar`／`three` への参照が残っていないことを確認する
+  - 自宅撮影（`/camera`）が本変更の前後で同一挙動であること（再利用コンポーネントの props 契約不変）を確認する
+  - 完了状態: 型チェック・lint・ビルドが成功し、撤去対象シンボルの参照が検出されない
+  - _Requirements: 5.1, 5.3, 5.4, 6.3_
+  - _Depends: 2.5, 3.2, 3.3, 4.1_
+  - _Boundary: 全体_
+- [x] 5.2 アクセシビリティ確認
+  - 変更した Spot撮影のランディング／モーダルに対し `/baseline-ui` と `/fixing-accessibility` を適用し、14px以上・行間1.5以上・コントラスト4.5:1以上・アクセシブルラベル／フォーカス表示を確認する
+  - 完了状態: 対象ファイルで baseline-ui/accessibility チェックの重大な違反がない
+  - _Requirements: 8.1, 8.2, 8.3, 8.4_
+  - _Depends: 1.1, 1.2_
+  - _Boundary: ArLanding, ArModal_

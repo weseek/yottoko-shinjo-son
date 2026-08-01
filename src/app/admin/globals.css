@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ColorSchemeSwitch: テキストを小さくする */
+.flex.flex-col > div[role="button"] {
+  font-size: 0.7rem;
+  font-weight: normal;
+}
+
+/* EmptyState: キャプションをボタンの下に移動 */
+.py-10.text-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.py-10.text-center > svg {
+  order: 1;
+}
+.py-10.text-center > h3 {
+  order: 2;
+}
+.py-10.text-center > div {
+  order: 3;
+}
+.py-10.text-center > p {
+  order: 4;
+  margin-top: 0.75rem;
+}
