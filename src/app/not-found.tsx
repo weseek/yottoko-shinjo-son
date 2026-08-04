@@ -1,6 +1,7 @@
+import AppHeader from "@/app/_components/AppHeader";
 import CharacterContainer from "@/app/_components/CharacterContainer";
 import NotFoundBackLink from "@/app/_components/NotFoundBackLink";
-import AppHeader from "@/app/_components/AppHeader";
+import { env } from "@/env";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -41,7 +42,7 @@ export default function NotFound() {
       {/* 簡略フッター（お問い合わせ導線と著作権表示のみ） */}
       <footer className="py-8 text-center">
         <a
-          href="mailto:yottoko-contact@weseek.co.jp"
+          href={`mailto:${env.CONTACT_EMAIL}`}
           className="mb-2 block text-sm leading-[1.5] text-arcana-orange-secondary underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arcana-orange-secondary"
         >
           お問い合わせ
