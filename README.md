@@ -1,4 +1,4 @@
-# Arcana
+# よっとこ！新庄村
 
 Next.js 15 + React 19 + Prisma 7 + PostgreSQL によるフルスタック Web アプリケーション。
 
