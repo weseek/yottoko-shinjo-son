@@ -10,15 +10,20 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["better-auth"],
   images: {
     // GCS 公開バケットの画像を <Image> で最適化できるよう許可する。
-    // バケット名が分からない場合のみ storage.googleapis.com 配下全体を許可する
-    // (絞り込めるほうが望ましいので、デプロイ時は GCS_BUCKET を渡すこと)。
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "storage.googleapis.com",
-        pathname: gcsBucket ? `/${gcsBucket}/**` : "/**",
-      },
-    ],
+    // バケット名が無い場合は何も許可しない（fail-closed）。ここを storage.googleapis.com
+    // 全体へのフォールバックにすると、build 引数の渡し忘れに誰も気づかないまま
+    // /_next/image が任意の GCS バケットを配信するオープンプロキシになるため。
+    // GCS の画像を表示するには GCS_BUCKET を build 時に渡すこと（Dockerfile の
+    // ARG GCS_BUCKET / ローカルは .env.development）。
+    remotePatterns: gcsBucket
+      ? [
+          {
+            protocol: "https",
+            hostname: "storage.googleapis.com",
+            pathname: `/${gcsBucket}/**`,
+          },
+        ]
+      : [],
   },
   webpack: (config) => {
     // next-admin references @prisma/client/runtime/library which was renamed
