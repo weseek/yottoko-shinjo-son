@@ -168,8 +168,9 @@ src/app/
 - パスが `/activities` から始まる場合 → `href="/activities"`, ラベル「一覧に戻る」（Requirement 3.2）
 - パスが `/spots` から始まる場合 → `href="/spots"`, ラベル「一覧に戻る」（Requirement 3.3。ラベル文言は`/activities`と共通の汎用表記とし、遷移先（href）のみで内容を区別する。ユーザー確認済みの意図的な決定）
 - 上記いずれにも一致しない場合 → `href="/"`, ラベル「トップページに戻る」（Requirement 3.4）
-- リンクは `next/link` の `Link` で描画し、`‹ ` プレフィックス＋ラベルを表示する（Requirement 3.1, 3.5）。
-- スタイルは `text-lg font-bold text-arcana-primary-green`（18px・太字）とし、`focus-visible:outline` 系クラスでキーボード操作時のフォーカスを可視化する（Requirement 3.6, 4.3, 4.4 — 18px+太字により「大きな文字」の3:1基準を満たす。design-system.md のボタンラベルと同じ運用根拠）。
+- リンクは `next/link` の `Link` で描画し、`‹ ` プレフィックス＋ラベルを表示する（Requirement 3.1, 3.5）。`‹` は装飾記号のため `<span aria-hidden="true">` で包み、スクリーンリーダーに読み上げさせない。
+- スタイルは `text-lg font-bold leading-[1.5] text-arcana-green`（18px・太字）とし、`focus-visible:outline` 系クラスでキーボード操作時のフォーカスを可視化する（Requirement 3.6, 4.3, 4.4）。色は見出し・説明文と同じ `arcana-green`（`#397754`、`neutral-50` 背景で約5.1:1）を用い、通常文字の4.5:1基準を単独で満たす。
+  - 注: 当初は `text-arcana-primary-green`（`#089400`、約3.8:1）を「18px+太字＝大きな文字の3:1基準」で正当化していたが、WCAG の「大きな文字」は太字の場合 14pt（≒18.66px）以上であり、18px の太字はこれに満たない。加えて CLAUDE.md はリンク等の操作要素に 4.5:1 未達の色を認めていないため、`arcana-green` に是正した（Task 3.2 の `/fixing-accessibility` 指摘）。
 
 **Dependencies**
 - Inbound: `NotFoundPage`（P0）
@@ -232,11 +233,11 @@ const DEFAULT_BACK_LINK: Omit<BackLinkRule, "prefix"> = {
 
 ### Manual Verification（実ブラウザ）
 - 存在しないURL（例: `/no-such-page`）に直接アクセスし、404画面・ヘッダー・お辞儀猫イラスト・簡略フッターが表示されることを確認する（Requirement 1.1, 2.1〜2.4）
-- 存在しないアクティビティID（例: `/activities/999999`）にアクセスし、404画面と「交流コンテンツ一覧に戻る」リンク（`/activities` へ遷移）を確認する（Requirement 1.2, 3.2）
-- 存在しないスポットslug（例: `/spots/xxxxx`）にアクセスし、404画面と「スポット一覧に戻る」リンク（`/spots` へ遷移）を確認する（Requirement 1.2, 3.3）
+- 存在しないアクティビティID（例: `/activities/999999`）にアクセスし、404画面と「一覧に戻る」リンク（`/activities` へ遷移）を確認する（Requirement 1.2, 3.2）
+- 存在しないスポットslug（例: `/spots/xxxxx`）にアクセスし、404画面と「一覧に戻る」リンク（`/spots` へ遷移）を確認する（Requirement 1.2, 3.3）
 - 上記いずれにも該当しないURLで「トップページに戻る」リンク（`/` へ遷移）を確認する（Requirement 3.4）
 - キーボードのみ（Tabキー）で戻り先リンクにフォーカスが移動し、Enterで遷移できることを確認する（Requirement 3.6）
-- ブラウザDevToolsのコントラストチェッカーで、`text-arcana-primary-green` を用いた見出し・説明文・戻り先リンクが「大きな文字」の3:1基準を満たすこと、フォントサイズが14px以上・行間1.5以上であることを確認する（Requirement 4.1〜4.4）
+- ブラウザDevToolsのコントラストチェッカーで、`text-arcana-green` を用いた見出し・説明文・戻り先リンクが通常文字の4.5:1基準を満たすこと、フォントサイズが14px以上・行間1.5以上であることを確認する（Requirement 4.1〜4.4）
 - 管理画面配下（例: 存在しない管理者向けメールレコードのURL）にアクセスし、訪問者向けブランド404（猫イラスト・AppHeader等）が表示されないことを確認する（Boundary Context: 管理画面を除く）
 
 ### Post-Implementation Skills（CLAUDE.md 必須）

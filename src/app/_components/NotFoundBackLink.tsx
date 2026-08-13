@@ -34,9 +34,9 @@ export default function NotFoundBackLink() {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-1 text-lg font-bold text-arcana-primary-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arcana-primary-green"
+      className="inline-flex items-center gap-1 text-lg font-bold leading-[1.5] text-arcana-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arcana-green"
     >
-      ‹ {label}
+      <span aria-hidden="true">‹</span> {label}
     </Link>
   );
 }
